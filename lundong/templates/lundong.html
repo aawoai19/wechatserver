@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>二八轮动分析</title>
+    <link href="/static/layout.css" rel="stylesheet" type="text/css">
+    <script src="/static/jquery.js"></script>
+    <script src="/static/jquery.flot.js"></script>
+    <script src="/static/jquery.flot.crosshair.js"></script>
+</head>
+<body>
+
+    <div id="placeholder2"></div>
+
+    <div id="placeholder"></div>
+
+    <div id="text1">
+    <p>本应用计算当前交易日收盘数据与二十个交易日前的收盘数据增幅，并向前回溯20日，以便分析各指数走势。【假设f(t)为t日收盘数据，则y=(f(t)-f(t-20))/f(t-20)】</p>
+    <p>我们选择了001549、002987、002903、001593四个交易费率较低的指数基金，以减轻二八轮动模型在震荡市场频繁交易的不足。但同时对上证50、深沪300、中证500、创业板指数的跟踪有一定的失真现象。</p>
+        <img src="/static/wechat.jpg" width="90%" >
+    <p>关注我们，有更多好玩的、实用的web应用哦</p>
+    </div>
+
+
+<script type="text/javascript">
+    var plot;
+    var plot2;
+    $(function () {
+        $(this).css("background-image","url(/static/background.jpg)");
+        $("#placeholder").height($("#placeholder").width()/2)
+        $.getJSON('/lundong_list/',function (ret) {
+            shenhu300 = ret['sh300'];
+            shangzheng50 = ret['sz50'];
+            zhongzheng500 = ret['zz500'];
+            chuangyeban = ret['cyb'];
+            var d1=[],d2=[],d3=[],d4=[];
+            for (var i = 0;i<20;i +=1)
+            {
+                sh300 = (shenhu300[19-i]-shenhu300[39-i])*100/shenhu300[39-i];
+                sh300 = sh300.toFixed(2);
+                d1.push([i,sh300]);
+                cyb = (chuangyeban[19-i]-chuangyeban[39-i])*100/chuangyeban[39-i];
+                cyb=cyb.toFixed(2);
+                d2.push([i,cyb]);
+                sz50 = (shangzheng50[19-i]-shangzheng50[39-i])*100/shangzheng50[39-i];
+                sz50=sz50.toFixed(2);
+                d3.push([i,sz50]);
+                zz500 = (zhongzheng500[19-i]-zhongzheng500[39-i])*100/zhongzheng500[39-i];
+                zz500=zz500.toFixed(2);
+                d4.push([i,zz500]);
+            }
+
+//
+//    // a null signifies separate line segments
+//    var d3 = [[0, 12], [7, 12], null, [7, 2.5], [12, 2.5]];
+
+            plot = $.plot($("#placeholder"),
+                [
+                    {
+                        data:d1,
+
+                        lines:{show:true}
+                    },
+                    {
+                        data:d2,
+
+                        lines:{show:true}
+                    },
+                    {
+                        data:d3,
+                        lines:{show:true}
+                    },
+                    {
+                        data:d4,
+                        lines:{show:true}
+                    }
+                ],
+                {
+                    crosshair: { mode: "y" },
+                    grid: { hoverable: true, autoHighlight: false },
+                }
+            );
+            plot2 = $.plot($("#placeholder2"),
+                [
+                    {
+                        data:d1,
+                        label:"深沪300指数增幅（20日）= "+d1[19][1]+"%",
+                        lines:{show:false}
+                    },
+                    {
+                        data:d2,
+                        label:"创业板指数增幅（20日）= "+d2[19][1]+"%",
+                        lines:{show:false}
+                    },
+                    {
+                        data:d3,
+                        label:"上证50指数增幅（20日）= "+d3[19][1]+"%",
+                        lines:{show:false}
+                    },
+                    {
+                        data:d4,
+                        label:"中证500指数增幅（20日）= "+d4[19][1]+"%",
+                        lines:{show:false}
+                    }
+                ],
+                {
+                    crosshair: { mode: "x" },
+                    grid: { hoverable: true, autoHighlight: false,show:false },
+                }
+            );
+
+
+
+        });
+    })
+
+</script>
+</body>
+</html>
